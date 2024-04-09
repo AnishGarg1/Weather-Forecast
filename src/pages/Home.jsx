@@ -1,9 +1,11 @@
 import React from 'react'
+import CityTable from '../components/CityTable'
 
 const Home = () => {
   return (
     <div>
-        <h1 class="text-3xl text-center font-bold underline">Weather Forecast App</h1>
+        <h1 className="text-3xl font-bold underline">Weather Forecast App</h1>
+        <CityTable/>
     </div>
   )
 }

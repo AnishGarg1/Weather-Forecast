@@ -6,7 +6,7 @@ import CityWeather from "./pages/CityWeather";
 
 function App() {
   return (
-    <div class="flex justify-center gap-4 flex-col min-h-screen">
+    <div>
       <Navbar/>
       <Routes>
         <Route path="/" element={<Home/>}/>
