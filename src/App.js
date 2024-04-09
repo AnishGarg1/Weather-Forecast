@@ -7,7 +7,7 @@ import Error from "./pages/Error";
 
 function App() {
   return (
-    <div>
+    <div className="flex min-h-screen flex-col font-inter">
       <Navbar/>
       <Routes>
         <Route path="/" element={<Home/>}/>
