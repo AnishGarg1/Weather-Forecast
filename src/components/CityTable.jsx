@@ -34,7 +34,15 @@ const CityTable = () => {
       const newTotalCount = response.data.total_count;
 
       if (cities.length < newTotalCount) {
-        setCities(prevCities => [...prevCities, ...newData]);
+        // Fetch weather data for each city and update city data with coordinates
+        const updatedCities = await Promise.all(
+          newData.map(async city => {
+            const weatherData = await fetchWeatherData(city);
+            return { ...city, weatherData };
+          })
+        );
+
+        setCities(prevCities => [...prevCities, ...updatedCities]);
         setOffset(newOffset);
         setTotalCount(newTotalCount);
       } else {
@@ -46,6 +54,19 @@ const CityTable = () => {
     }
 
     setLoading(false); // Set loading to false after fetching data
+  };
+
+  const fetchWeatherData = async city => {
+    const { lat, lon } = city.coordinates;
+    try {
+      const response = await axios.get(
+        `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=304c0149dd3eb14f58222e1f0ef78214&units=metric`
+      );
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching weather data for ${city.name}:`, error);
+      return null;
+    }
   };
 
   const loadMoreData = () => {
@@ -144,6 +165,12 @@ const CityTable = () => {
               >
                 Timezone
               </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Weather
+              </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
@@ -157,6 +184,16 @@ const CityTable = () => {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {city.timezone}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {city.weatherData ? (
+                    <div>
+                      Temperature: {city.weatherData.main.temp}°C <br />
+                      Description: {city.weatherData.weather[0].description}
+                    </div>
+                  ) : (
+                    'Weather data loading...'
+                  )}
                 </td>
               </tr>
             ))}
