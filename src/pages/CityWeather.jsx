@@ -6,6 +6,7 @@ import WeatherCard from '../components/WeatherCard';
 const CityWeather = () => {
   const { cityName } = useParams();
   const [weatherData, setWeatherData] = useState(null);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     const fetchWeather = async () => {
@@ -16,6 +17,10 @@ const CityWeather = () => {
         setWeatherData(response.data);
       } catch (error) {
         console.error(`Error fetching weather data for ${cityName}:`, error);
+        if (error.response && error.response.status === 404) {
+          // City not found
+          setError(true);
+        }
       }
     };
 
@@ -25,7 +30,9 @@ const CityWeather = () => {
   return (
     <div className="container mx-auto mt-8 w-11/12 flex flex-col justify-center items-center">
       <h2 className="text-3xl font-bold mb-6">{cityName} Weather</h2>
-      {weatherData ? (
+      {error ? (
+        <p className="text-red-500 text-lg font-bold">City not found</p>
+      ) : weatherData ? (
         <WeatherCard weatherData={weatherData} />
       ) : (
         <div className="flex flex-col items-center justify-center h-40">
