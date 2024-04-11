@@ -97,7 +97,33 @@ const CityTable = () => {
         dataLength={filteredCities.length}
         next={fetchData}
         hasMore={hasMore}
-        loader={<div className="text-center my-4">Loading...</div>}
+        loader={
+          <div className="flex items-center justify-center my-8">
+            {loading && (
+              <svg
+                className="animate-spin h-5 w-5 mr-3 text-blue-500"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A8.001 8.001 0 0120 12h-4a7.96 7.96 0 00-2.367-5.657l-1.414 1.414A5.96 5.96 0 0116 12H8.585l5.707 5.707c.39.39.39 1.023 0 1.414s-1.024.39-1.415 0l-7.5-7.5a1 1 0 010-1.414l7.5-7.5c.391-.39 1.024-.39 1.415 0s.39 1.024 0 1.414L8.586 11H16a7.963 7.963 0 00-.472 2.84l2.717 2.717A7.992 7.992 0 0110 20.292V17H4v5.291z"
+                ></path>
+              </svg>
+            )}
+            <p className="text-gray-600 text-lg">Loading...</p>
+          </div>
+        }
         scrollThreshold={0.9}
         className="overflow-x-auto mt-4"
       >

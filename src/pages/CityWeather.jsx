@@ -23,12 +23,15 @@ const CityWeather = () => {
   }, [cityName]);
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-4">{cityName} Weather</h2>
+    <div className="container mx-auto mt-8 w-11/12 flex flex-col justify-center items-center">
+      <h2 className="text-3xl font-bold mb-6">{cityName} Weather</h2>
       {weatherData ? (
         <WeatherCard weatherData={weatherData} />
       ) : (
-        <p>Loading weather data...</p>
+        <div className="flex flex-col items-center justify-center h-40">
+          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
+          <p className="mt-4 text-gray-600 text-lg">Fetching weather data...</p>
+        </div>
       )}
     </div>
   );
