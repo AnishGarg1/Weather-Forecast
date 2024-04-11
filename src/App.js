@@ -1,21 +1,23 @@
-import "./App.css";
-import Navbar from "./components/Navbar";
-import { Routes, Route } from "react-router-dom"
-import Home from "./pages/Home";
-import CityWeather from "./pages/CityWeather";
-import Error from "./pages/Error";
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Navbar from './components/Navbar';
+import Home from './pages/Home';
+import CityWeather from './pages/CityWeather';
+import Error from './pages/Error';
 
-function App() {
+const App = () => {
   return (
     <div className="flex min-h-screen flex-col font-inter">
-      <Navbar/>
-      <Routes>
-        <Route path="/" element={<Home/>}/>
-        <Route path="/city-weather/:cityName" element={<CityWeather/>}/>
-        <Route path="*" element={<Error/>}/>
-      </Routes>
+      <Router>
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/city-weather/:cityName" element={<CityWeather />} />
+          <Route path="*" element={<Error />} />
+        </Routes>
+      </Router>
     </div>
   );
-}
+};
 
 export default App;
