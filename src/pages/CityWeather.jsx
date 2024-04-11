@@ -10,6 +10,7 @@ const CityWeather = () => {
   const [forecastData, setForecastData] = useState(null);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [currentDateTime, setCurrentDateTime] = useState(new Date());
 
   useEffect(() => {
     const fetchWeather = async () => {
@@ -38,11 +39,20 @@ const CityWeather = () => {
     };
 
     fetchWeather();
+
+    // Update currentDateTime every second using setInterval
+    const intervalId = setInterval(() => {
+      setCurrentDateTime(new Date());
+    }, 1000);
+
+    // Clean up the interval on component unmount
+    return () => clearInterval(intervalId);
   }, [cityName, latitude, longitude]);
 
   return (
     <div className="container mx-auto mt-8 px-4">
-      <h2 className="text-4xl font-bold mb-8 text-center">{cityName} Weather</h2>
+      <h2 className="text-4xl font-bold mb-4 text-center">{cityName} Weather</h2>
+      <p className="text-lg mb-4 text-center">Current Date and Time: {currentDateTime.toLocaleString()}</p>
       {loading ? (
         <div className="flex items-center justify-center h-40">
           <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
