@@ -35,7 +35,14 @@ const CityTable = () => {
       const newTotalCount = response.data.total_count;
 
       if (cities.length < newTotalCount) {
-        const updatedCities = [...newData];
+        const updatedCities = newData.map(city => ({
+          geoname_id: city.geoname_id,
+          name: city.name,
+          country: city.country,
+          timezone: city.timezone,
+          lat: city.coordinates.lat,
+          lon: city.coordinates.lon
+        }));
         setCities(prevCities => [...prevCities, ...updatedCities]);
         setOffset(newOffset);
         setTotalCount(newTotalCount);
@@ -158,10 +165,7 @@ const CityTable = () => {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   <Link
-                    to={{
-                      pathname: `/city-weather/${encodeURIComponent(city.name)}`,
-                      state: { city },
-                    }}
+                    to={`/city-weather/${encodeURIComponent(city.name)}/${city.lat}/${city.lon}`}
                     className="text-blue-500 hover:underline"
                   >
                     View Weather

@@ -12,7 +12,8 @@ const App = () => {
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/city-weather/:cityName" element={<CityWeather />} />
+          {/* Update route to accept cityName, latitude, and longitude */}
+          <Route path="/city-weather/:cityName/:latitude/:longitude" element={<CityWeather />} />
           <Route path="*" element={<Error />} />
         </Routes>
       </Router>
