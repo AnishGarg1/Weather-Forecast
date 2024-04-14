@@ -8,10 +8,9 @@ const Home = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Function to fetch weather data based on user's current location
     const fetchWeatherByLocation = async (latitude, longitude) => {
       try {
-        const apiKey = '304c0149dd3eb14f58222e1f0ef78214'; // Replace with your OpenWeatherMap API key
+        const apiKey = '304c0149dd3eb14f58222e1f0ef78214';
         const response = await axios.get(
           `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`
         );
@@ -22,27 +21,28 @@ const Home = () => {
       }
     };
 
-    // Function to handle successful retrieval of user's location
     const handleSuccess = (position) => {
       const { latitude, longitude } = position.coords;
       fetchWeatherByLocation(latitude, longitude);
     };
 
-    // Function to handle errors in retrieving user's location
     const handleError = (error) => {
       console.error('Error getting user location:', error);
       setError('Failed to get user location');
     };
 
-    // Get user's current location using browser's geolocation API
     navigator.geolocation.getCurrentPosition(handleSuccess, handleError);
   }, []);
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold underline">Weather Forecast App</h1>
-      {error && <p className="text-red-500">{error}</p>}
-      {currentWeather && <WeatherCard weatherData={currentWeather} />}
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-4 underline text-center">Weather Forecast App</h1>
+      <div className="flex justify-center">
+        {error && <p className="text-red-500 mb-4">{error}</p>}
+      </div>
+      <div className="flex justify-center mb-8">
+        {currentWeather && <WeatherCard weatherData={currentWeather} />}
+      </div>
       <CityTable />
     </div>
   );
