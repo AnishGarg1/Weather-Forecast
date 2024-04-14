@@ -12,6 +12,7 @@ const CityTable = () => {
   const [offset, setOffset] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [sortBy, setSortBy] = useState({ column: null, order: null });
 
   useEffect(() => {
     fetchData();
@@ -21,15 +22,19 @@ const CityTable = () => {
     setLoading(true);
 
     try {
-      const newOffset = offset + 100;
-
-      if (newOffset > 10000) {
-        setHasMore(false);
-        return;
-      }
+      const orderBy = sortBy.column && sortBy.order ? `${sortBy.column} ${sortBy.order}` : null;
 
       const response = await axios.get(
-        `https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/geonames-all-cities-with-a-population-500/records?limit=100&offset=${offset}`
+        `https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/geonames-all-cities-with-a-population-1000/records`,
+        {
+          params: {
+            limit: 100,
+            offset: offset,
+            timezone: 'Asia/Kolkata',
+            refine: 'cou_name_en:"India"',
+            order_by: orderBy
+          }
+        }
       );
       const newData = response.data.results;
       const newTotalCount = response.data.total_count;
@@ -38,13 +43,13 @@ const CityTable = () => {
         const updatedCities = newData.map(city => ({
           geoname_id: city.geoname_id,
           name: city.name,
-          country: city.country,
+          country: city.cou_name_en,
           timezone: city.timezone,
           lat: city.coordinates.lat,
           lon: city.coordinates.lon
         }));
         setCities(prevCities => [...prevCities, ...updatedCities]);
-        setOffset(newOffset);
+        setOffset(prevOffset => prevOffset + 100);
         setTotalCount(newTotalCount);
       } else {
         setHasMore(false);
@@ -73,18 +78,50 @@ const CityTable = () => {
   };
 
   const renderSuggestion = suggestion => (
-    <div>
-      {suggestion.name} - {suggestion.country}
+    <div className="flex justify-between items-center py-2 px-4 hover:bg-gray-100 cursor-pointer">
+      <div>
+        <p className="text-sm font-semibold">{suggestion.name}</p>
+        <p className="text-xs text-gray-500">{suggestion.country}</p>
+      </div>
+      <Link
+        to={`/city-weather/${encodeURIComponent(suggestion.name)}/${suggestion.lat}/${suggestion.lon}`}
+        className="text-blue-500 hover:underline"
+      >
+        View Weather
+      </Link>
     </div>
   );
 
-  const filteredCities = cities.filter(city =>
+  const handleSortByColumn = column => {
+    if (sortBy.column === column) {
+      const newOrder = sortBy.order === 'asc' ? 'desc' : 'asc';
+      setSortBy({ column, order: newOrder });
+    } else {
+      setSortBy({ column, order: 'asc' });
+    }
+    setCities([]);
+    setOffset(0);
+    setHasMore(true);
+  };
+
+  const sortedCities = [...cities].sort((a, b) => {
+    if (sortBy.column && sortBy.order) {
+      if (sortBy.order === 'asc') {
+        return a[sortBy.column].localeCompare(b[sortBy.column]);
+      } else {
+        return b[sortBy.column].localeCompare(a[sortBy.column]);
+      }
+    }
+    return 0;
+  });
+
+  const filteredCities = sortedCities.filter(city =>
     city.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <div className="container mx-auto mt-8">
-      <div className="relative">
+      <div className="relative mb-4">
         <Autosuggest
           suggestions={suggestions}
           onSuggestionsFetchRequested={handleSuggestionsFetchRequested}
@@ -100,6 +137,56 @@ const CityTable = () => {
           }}
         />
       </div>
+      <table className="min-w-full divide-y divide-gray-200">
+        <thead className="bg-gray-50">
+          <tr>
+            <th
+              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+              onClick={() => handleSortByColumn('name')}
+            >
+              City Name
+            </th>
+            <th
+              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+              // onClick={() => handleSortByColumn('country')}
+            >
+              Country
+            </th>
+            <th
+              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+              onClick={() => handleSortByColumn('timezone')}
+            >
+              Timezone
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Weather
+            </th>
+          </tr>
+        </thead>
+        <tbody className="bg-white divide-y divide-gray-200">
+          {filteredCities.map(city => (
+            <tr key={city.geoname_id}>
+              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                {city.name}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {city.country}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {city.timezone}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <Link
+                  to={`/city-weather/${encodeURIComponent(city.name)}/${city.lat}/${city.lon}`}
+                  className="text-blue-500 hover:underline"
+                >
+                  View Weather
+                </Link>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
       <InfiniteScroll
         dataLength={filteredCities.length}
         next={fetchData}
@@ -134,47 +221,14 @@ const CityTable = () => {
         scrollThreshold={0.9}
         className="overflow-x-auto mt-4"
       >
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                City Name
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Country
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Timezone
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Weather
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {filteredCities.map(city => (
-              <tr key={city.geoname_id}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  {city.name}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {city.country}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {city.timezone}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <Link
-                    to={`/city-weather/${encodeURIComponent(city.name)}/${city.lat}/${city.lon}`}
-                    className="text-blue-500 hover:underline"
-                  >
-                    View Weather
-                  </Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        {hasMore && !loading && (
+          <button
+            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-4"
+            onClick={fetchData}
+          >
+            Load More
+          </button>
+        )}
       </InfiniteScroll>
     </div>
   );
