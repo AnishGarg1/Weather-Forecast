@@ -86,6 +86,8 @@ const CityTable = () => {
       <Link
         to={`/city-weather/${encodeURIComponent(suggestion.name)}/${suggestion.lat}/${suggestion.lon}`}
         className="text-blue-500 hover:underline"
+        target="_blank"
+        rel="noopener noreferrer"
       >
         View Weather
       </Link>
@@ -178,6 +180,8 @@ const CityTable = () => {
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 <Link
                   to={`/city-weather/${encodeURIComponent(city.name)}/${city.lat}/${city.lon}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-blue-500 hover:underline"
                 >
                   View Weather

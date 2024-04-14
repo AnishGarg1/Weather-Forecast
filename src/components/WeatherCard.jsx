@@ -1,9 +1,14 @@
 import React from 'react';
-import { WiThermometer, WiHumidity } from 'react-icons/wi'; // Import weather icons
+import { WiThermometer, WiHumidity, WiStrongWind, WiBarometer } from 'react-icons/wi'; // Import weather icons
 
 const WeatherCard = ({ weatherData }) => {
-  const { main, description } = weatherData.weather[0];
-  const { temp, feels_like, temp_min, temp_max, humidity } = weatherData.main;
+  if (!weatherData) {
+    return null; // Handle case where weather data is not available yet
+  }
+
+  const { weather, main, wind } = weatherData;
+  const { temp, feels_like, temp_min, temp_max, humidity, pressure } = main;
+  const { description } = weather[0];
 
   // Function to render weather icon based on weather description
   const renderWeatherIcon = (weatherDescription) => {
@@ -59,13 +64,31 @@ const WeatherCard = ({ weatherData }) => {
           </p>
           <p className="text-lg">{temp_max}°C</p>
         </div>
-        <div className="col-span-2">
+        <div>
           <p className="text-gray-600">
             <strong>Humidity:</strong>
           </p>
           <div className="flex items-center">
             <WiHumidity size={24} color="#6B7280" />
             <p className="ml-2 text-lg">{humidity}%</p>
+          </div>
+        </div>
+        <div>
+          <p className="text-gray-600">
+            <strong>Wind Speed:</strong>
+          </p>
+          <div className="flex items-center">
+            <WiStrongWind size={24} color="#1F2937" />
+            <p className="ml-2 text-lg">{wind.speed} m/s</p>
+          </div>
+        </div>
+        <div>
+          <p className="text-gray-600">
+            <strong>Pressure:</strong>
+          </p>
+          <div className="flex items-center">
+            <WiBarometer size={24} color="#1F2937" />
+            <p className="ml-2 text-lg">{pressure} hPa</p>
           </div>
         </div>
       </div>
