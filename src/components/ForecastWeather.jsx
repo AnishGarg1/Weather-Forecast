@@ -1,7 +1,11 @@
 import React from 'react';
+import { WiDaySunny, WiCloudy, WiRain, WiThunderstorm, WiSnow, WiFog } from 'react-icons/wi'; // Import weather icons
 
 const ForecastWeather = ({ forecastData }) => {
-  // Assuming forecastData is structured as provided by OpenWeatherMap API
+  if (!forecastData) {
+    return null; // Handle case where forecast data is not available yet
+  }
+
   const { list } = forecastData;
 
   // Group forecast data by date
@@ -10,20 +14,48 @@ const ForecastWeather = ({ forecastData }) => {
   return (
     <div className="mt-8 w-full max-w-4xl">
       <h3 className="text-2xl font-semibold mb-4">5-Day Weather Forecast</h3>
-      <div className="relative">
+      <div className="space-y-8">
         {Object.keys(groupedForecast).map((date, index) => (
-          <div key={index} className="mb-6">
+          <div key={index}>
             <p className="text-lg font-semibold mb-2">{formatDate(date)}</p>
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {groupedForecast[date].map((forecast, idx) => (
-                <div key={idx} className="flex items-center">
-                  <div className="w-20 h-20 flex-shrink-0 flex items-center justify-center rounded-full bg-gray-200">
-                    <p className="text-sm font-semibold">{formatTime(forecast.dt_txt)}</p>
+                <div key={idx} className="p-6 rounded-lg shadow-md bg-white">
+                  <div className="flex items-center justify-between">
+                    <p className="text-lg font-semibold">{formatTime(forecast.dt_txt)}</p>
+                    {renderWeatherIcon(forecast.weather[0].main)}
                   </div>
-                  <div className="ml-4">
-                    <p className="text-gray-800">{forecast.weather[0].description}</p>
-                    <p className="text-gray-600">Temperature: {forecast.main.temp}°C</p>
+                  <p className="text-gray-600">{forecast.weather[0].description}</p>
+                  <div className="flex justify-between mt-2">
+                    <div>
+                      <p className="text-gray-600">Temperature:</p>
+                      <p className="text-lg">{forecast.main.temp}°C</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-600">Min Temp:</p>
+                      <p className="text-lg">{forecast.main.temp_min}°C</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-600">Max Temp:</p>
+                      <p className="text-lg">{forecast.main.temp_max}°C</p>
+                    </div>
                   </div>
+                  <div className="mt-2">
+                    <p className="text-gray-600">Humidity:</p>
+                    <p className="text-lg">{forecast.main.humidity}%</p>
+                  </div>
+                  {forecast.rain && (
+                    <div className="mt-2">
+                      <p className="text-gray-600">Precipitation:</p>
+                      <p className="text-lg">{forecast.rain['3h']} mm</p>
+                    </div>
+                  )}
+                  {forecast.snow && (
+                    <div className="mt-2">
+                      <p className="text-gray-600">Snow:</p>
+                      <p className="text-lg">{forecast.snow['3h']} mm</p>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -56,8 +88,27 @@ const formatDate = (dateString) => {
 // Helper function to format time
 const formatTime = (dateTimeString) => {
   const dateTime = new Date(dateTimeString);
-  const timeString = dateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  return timeString;
+  return dateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+};
+
+// Helper function to render weather icon based on weather condition
+const renderWeatherIcon = (weatherMain) => {
+  switch (weatherMain.toLowerCase()) {
+    case 'clear':
+      return <WiDaySunny size={32} color="#F59E0B" />;
+    case 'clouds':
+      return <WiCloudy size={32} color="#6B7280" />;
+    case 'rain':
+      return <WiRain size={32} color="#1F2937" />;
+    case 'thunderstorm':
+      return <WiThunderstorm size={32} color="#4B5563" />;
+    case 'snow':
+      return <WiSnow size={32} color="#FFFFFF" />;
+    case 'mist':
+      return <WiFog size={32} color="#6B7280" />;
+    default:
+      return null;
+  }
 };
 
 export default ForecastWeather;
